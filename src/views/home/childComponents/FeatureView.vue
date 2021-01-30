@@ -22,7 +22,7 @@ export default {
 
 }
 </script>
-<style>
+<style scoped>
  /* @import url(); 引入公共css类 */
 .feature img{
   width: 100%;

@@ -1,7 +1,7 @@
 <template>
   <div class='goods-list-item'>
       <a :href="goodsItem.link">
-        <img :src="goodsItem.show.img">
+        <img :src="goodsItem.show.img" @load="imageload" :key='showImage'>
         <div class="goodsinfo">
           <p>{{goodsItem.title}}</p>
           <span class="price">{{goodsItem.price}}</span>
@@ -34,12 +34,21 @@ export default {
     }
   },
   // 监听属性 类似于data概念
-  computed: {},
+  computed: {
+    showImage(){
+      return this.goodsItem.img || this.goodsItem.image || this.goodsItem.show.img;
+    }
+  },
   // 监控data中的数据变化
   watch: {},
   // 方法集合
   methods: {
-
+    // 图片加载完成后执行函数
+    imageload(){
+      // console.log('图片加载完成');
+      // 将图片加载完成函数发射到事件总线上
+      this.$bus.$emit('itemimageload');
+    }
   },
   // 生命周期 - 创建完成（可以访问当前this实例）
   created () {

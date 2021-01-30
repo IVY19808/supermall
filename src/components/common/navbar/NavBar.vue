@@ -27,7 +27,7 @@ export default {
  
 }
 </script>
-<style>
+<style scoped>
 /* @import url(); 引入公共css类 */
  .nav-bar{
   display: flex;

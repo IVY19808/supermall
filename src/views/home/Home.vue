@@ -2,113 +2,28 @@
   <!-- <h2>首页</h2> -->
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <home-swiper :banners='banners'></home-swiper>
-    <recommend-view :recommends="recommends"></recommend-view>
-    <feature-view/>
-    <tab-control class="tab-control" :titles="['流行','新款','精选']" @tabclick='tabclick'></tab-control>
-    <goods-list :goods="showGoods"></goods-list>
-    <ul>
-      <li>列表1</li>
-      <li>列表2</li>
-      <li>列表3</li>
-      <li>列表4</li>
-      <li>列表5</li>
-      <li>列表6</li>
-      <li>列表7</li>
-      <li>列表8</li>
-      <li>列表9</li>
-      <li>列表10</li>
-      <li>列表11</li>
-      <li>列表12</li>
-      <li>列表13</li>
-      <li>列表14</li>
-      <li>列表15</li>
-      <li>列表16</li>
-      <li>列表17</li>
-      <li>列表18</li>
-      <li>列表19</li>
-      <li>列表20</li>
-      <li>列表21</li>
-      <li>列表22</li>
-      <li>列表23</li>
-      <li>列表24</li>
-      <li>列表25</li>
-      <li>列表26</li>
-      <li>列表27</li>
-      <li>列表28</li>
-      <li>列表29</li>
-      <li>列表30</li>
-      <li>列表31</li>
-      <li>列表32</li>
-      <li>列表33</li>
-      <li>列表34</li>
-      <li>列表35</li>
-      <li>列表36</li>
-      <li>列表37</li>
-      <li>列表38</li>
-      <li>列表39</li>
-      <li>列表40</li>
-      <li>列表41</li>
-      <li>列表42</li>
-      <li>列表43</li>
-      <li>列表44</li>
-      <li>列表45</li>
-      <li>列表46</li>
-      <li>列表47</li>
-      <li>列表48</li>
-      <li>列表49</li>
-      <li>列表50</li>
-      <li>列表51</li>
-      <li>列表52</li>
-      <li>列表53</li>
-      <li>列表54</li>
-      <li>列表55</li>
-      <li>列表56</li>
-      <li>列表57</li>
-      <li>列表58</li>
-      <li>列表59</li>
-      <li>列表60</li>
-      <li>列表61</li>
-      <li>列表62</li>
-      <li>列表63</li>
-      <li>列表64</li>
-      <li>列表65</li>
-      <li>列表66</li>
-      <li>列表67</li>
-      <li>列表68</li>
-      <li>列表69</li>
-      <li>列表70</li>
-      <li>列表71</li>
-      <li>列表72</li>
-      <li>列表73</li>
-      <li>列表74</li>
-      <li>列表75</li>
-      <li>列表76</li>
-      <li>列表77</li>
-      <li>列表78</li>
-      <li>列表79</li>
-      <li>列表80</li>
-      <li>列表81</li>
-      <li>列表82</li>
-      <li>列表83</li>
-      <li>列表84</li>
-      <li>列表85</li>
-      <li>列表86</li>
-      <li>列表87</li>
-      <li>列表88</li>
-      <li>列表89</li>
-      <li>列表90</li>
-      <li>列表91</li>
-      <li>列表92</li>
-      <li>列表93</li>
-      <li>列表94</li>
-      <li>列表95</li>
-      <li>列表96</li>
-      <li>列表97</li>
-      <li>列表98</li>
-      <li>列表99</li>
-      <li>列表100</li>
-    </ul>
+    <tab-control class="tab-control" 
+                   :titles="['流行','新款','精选']" 
+                   @tabclick='tabclick' 
+                   ref='tabcontrol1'
+                   v-show="isTabFixed"></tab-control>
+    <!-- 父组件给子组件传递数据时，需要使用:,不然会默认传递的数据为字符串类型 -->
+     <!--    -->
+    <scroll class="content" ref='scroll' 
+            :probeType='3' 
+            :pullUpLoad='true'
+            @pullingUp='loadmore'
+            @scroll-position='currentposition'>
+      <home-swiper :banners='banners' @swiperimageLoad='swiperimageLoad'></home-swiper>
+      <recommend-view :recommends="recommends"></recommend-view>
+      <feature-view/>
+      <tab-control :titles="['流行','新款','精选']" 
+                   @tabclick='tabclick' 
+                   ref='tabcontrol2'></tab-control>
+      <goods-list :goods="showGoods"></goods-list>
+    </scroll>
+    <!-- native用于监听组件原生事件时 -->
+    <back-top @click.native="backclick" v-show='isshowbacktop'></back-top>
   </div>
 </template>
 
@@ -116,13 +31,15 @@
 import NavBar from '@/components/common/navbar/NavBar'
 import TabControl from '@/components/content/tabControl/TabControl.vue'
 import GoodsList from '@/components/content/goods/GoodsList.vue'
+import Scroll from '@/components/common/scroll/Scroll'
+import BackTop from '@/components/content/backTop/BackTop.vue'
 
 import HomeSwiper from './childComponents/HomeSwiper'
 import RecommendView from './childComponents/RecommendView'
 import FeatureView from './childComponents/FeatureView'
 
 import {getHomeMultidata,getHomeGoods} from '@/network/home'
-
+import {debounce} from '@/common/utils'
 
   export default {
     name: "Home",
@@ -133,6 +50,8 @@ import {getHomeMultidata,getHomeGoods} from '@/network/home'
       RecommendView,
       FeatureView,
       GoodsList,
+      Scroll,
+      BackTop,
     },
     data() {
       return {
@@ -144,6 +63,9 @@ import {getHomeMultidata,getHomeGoods} from '@/network/home'
           'sell':{page:0,list:[]},
         },
         currentType:'pop',
+        isshowbacktop:false,
+        tabOffsetTop:0,
+        isTabFixed:false,
       }
     },
     computed:{
@@ -161,10 +83,20 @@ import {getHomeMultidata,getHomeGoods} from '@/network/home'
       this.getHomeGoods('new');
       this.getHomeGoods('sell');
       },
+      mounted() {
+        // 防抖函数debounce从外部导入的
+        // 此方法必须在mounted中执行，不然有可能获取不到this.$refs.scroll
+        const refresh = debounce(this.$refs.scroll.refresh,200);
+        // 图片加载完成后scroll进行刷新，因为刷新后xcrollerHeight的高度才可以重新计算
+        this.$bus.$on('itemimageload',() =>{
+          refresh();
+        })
+      },
       methods: {
         // 事件监听方法
+        //1.tabcontrol点击事件(选择流行，新款，爆款数据)
         tabclick(index){
-          console.log(index);
+          // console.log(index);
           switch(index){
             case 0:
               this.currentType = 'pop';
@@ -173,25 +105,68 @@ import {getHomeMultidata,getHomeGoods} from '@/network/home'
             case 2:
               this.currentType = 'sell'
           }
+          // 为了让两个tabcontrol显示的选项保持一致
+          this.$refs.tabcontrol1.currentindex = index;
+          this.$refs.tabcontrol2.currentindex = index;
+        },
+        //2.回到首页上方点击事件
+        backclick(){
+          // 获取scroll组件，使用该组件内部的的scrollTo方法
+          this.$refs.scroll.scrollTo(0,0,500);
+          // 获取scroll组件中的scroll对象，使用该对象的scrollto方法
+        //   this.$refs.scroll.scroll.scrollto(0,0,500);
+        },
+        // 3.页面滑到一定位置时backtop按钮何时出现
+        currentposition(position){
+          // console.log(position);
+          this.isshowbacktop = Math.abs(position.y) > 1000 ? true : false;
+          // if(Math.abs(position.y) > 1000){
+          //   // 当前屏幕位置大于1000时才显示backtop
+          //   this.isshowbacktop = true;
+          // }else{
+          //   this.isshowbacktop = false;
+          // }
+
+          // 判断当前滑动位置是否到达该组件，到达时显示tabcontrol1,反之不显示
+          this.isTabFixed = Math.abs(position.y) > this.tabOffsetTop ? true : false; 
+        },
+        // 4.上拉加载更多数据
+        loadmore(){
+          // console.log('上拉加载');
+          // 请求当前所处type的下一页数据
+          this.getHomeGoods(this.currentType);
+
+          // // 刷新可滚动区域
+          // this.$refs.scroll.refresh();
+
+        },
+        // 5.获取轮播图加载完成后tabcontrol距离顶端高度
+        swiperimageLoad(){
+          console.log(this.$refs.tabcontrol2.$el.offsetTop);
+          this.tabOffsetTop = this.$refs.tabcontrol2.$el.offsetTop;
         },
         //网络请求相关方法
+        // 1.请求轮播图，推荐相关数据
         getHomeMultidata(){
           getHomeMultidata().then(res =>{
-            console.log(res);
+            // console.log(res);
             // 存储请求到的数据
             this.banners = res.data.banner.list;
+            // console.log(this.banners);
             this.recommends = res.data.recommend.list;
             })
         },
-
+        // 2.请求商品相关数据
         getHomeGoods(type){
           const page = this.goods[type].page+1;
           getHomeGoods(type,page).then(res =>{
-            console.log(res);
+            // console.log(res);
             // this.goods[type].page = res.data.page;
             this.goods[type].page += 1;
             // 不能直接赋值，不然会覆盖之前的数据，需要向数组中往里加
             this.goods[type].list.push(...res.data.list);
+            // 完成上拉下载更多后进行finishPullUp后才能再一次上拉加载更多
+            this.$refs.scroll.finishPullUp();
           })
         }
       },
@@ -201,25 +176,44 @@ import {getHomeMultidata,getHomeGoods} from '@/network/home'
 <style scoped>
 /* 解决轮播图与nav之间重叠 */
 #home{
-  padding-top: 44px;
+  /* padding-top: 44px; */
+  height: 100vh;
+  position: relative;
 }
 .home-nav{
   background-color: var(--color-tint);
   color: #fff;
-/* 使nav固定不动 */
-  position: fixed;
+/* 使用浏览器原生滚动时，nav固定不动 */
+  /* position: fixed;
   left: 0;
   right: 0;
   top: 0;
-  z-index: 9;
+  z-index: 9; */
 }
 /* 用于让tab-control下面内容滚动时此部分处于固定 */
-.tab-control{
-  /* 没有达到该组建之前position属性为sticky，当移动到该组件时position为fixed */
-  /* 该属性很多浏览器并不支持 */
+/* .tab-control{
+  没有达到该组建之前position属性为sticky，当移动到该组件时position为fixed 
+     该属性很多浏览器并不支持 
   position:sticky;
   top: 44px;
   z-index: 9;
-
+}*/
+.tab-control{
+  position: relative;
+  z-index: 9;
+}
+.content{
+  /* height: 500px; */
+  overflow: hidden;
+  /* scroll固定高度方法一： */
+  /* margin-top: 44px;
+  height: calc(100%-93px); */
+  /*  scroll固定高度方法二： */
+  position: absolute;
+  top: 44px;
+  bottom: 49px;
+  left: 0;
+  right: 0;
+  
 }
 </style>

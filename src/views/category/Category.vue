@@ -135,7 +135,6 @@ export default {
 } */
 .nav {
   background-color: var(--color-tint);
-  font-weight: 700;
   color: #fff;
   box-sizing: border-box;
 }

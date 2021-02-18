@@ -5,7 +5,8 @@
     </nav-bar>
     <div class="content">
       <tab-menu :childcategories="categories" @selectItem="selectItem"></tab-menu>
-      <scroll id="tab-content" :probeType='3' :pullUpLoad='true'>
+      <!-- <scroll ref='scroll' id="tab-content" :probeType='3' :pullUpLoad='true' @pullingUp='refresh'> -->
+      <scroll ref="scroll" id="tab-content" :probeType="3" :pullUpLoad='true'>
         <div>
           <tab-content-category :subcategories="showSubcategory"></tab-content-category>
           <tab-control :titles="['流行','新款','热门']" @tabclick="tabclick"></tab-control>
@@ -47,7 +48,7 @@ export default {
   },
   created() {
     // 1.请求分类数据
-    this._getCategory()
+    this._getCategory();
   },
   computed: {
     showSubcategory() {
@@ -90,6 +91,7 @@ export default {
         this._getCategoryDetail('new')
       })
     },
+    // 获取推荐的详细数据
     _getCategoryDetail(type) {
       // 1.获取请求的miniWallkey
       const miniWallkey = this.categories[this.currentIndex].miniWallkey;
@@ -101,10 +103,12 @@ export default {
       })
     },
     /**
-     * 事件响应相关的方法
+     * 点击左侧菜单栏事件响应相关的方法
      */
     selectItem(index) {
+      // 获取对应菜单项数据
       this._getSubcategories(index)
+      this.$refs.scroll.refresh();
     },
     tabclick(index) {
       switch (index) {
@@ -118,7 +122,10 @@ export default {
           this.currentType = 'sell'
       }
     }
-  }
+  },
+  activated() {
+    this.$refs.scroll.refresh();
+  },
 }
 </script>
 

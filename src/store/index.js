@@ -6,6 +6,7 @@ import actions from './actions'
 import getters from './getters'
 
 Vue.use(Vuex);
+
 const state = {
   carList:[],
 }

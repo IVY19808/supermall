@@ -167,12 +167,13 @@ import {itemImgListenerMixin,backTopMixin} from '@/common/mixin'
       }
     },
     activated() {
+      // 跳转到离开时Y的位置
       this.$refs.scroll.scrollTo(0,this.SaveScrollY,0);
       // 重新刷新scroll,计算可滚动高度
       this.$refs.scroll.refresh();
     },
     deactivated() {
-      // 1.获取Y的位置
+      // 1.获取离开页面时Y的位置
       this.SaveScrollY = this.$refs.scroll.getScrollY();
       // console.log(this.SaveScrollY)
       // 2.取消图片加载事件监听

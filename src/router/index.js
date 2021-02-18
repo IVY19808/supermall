@@ -6,6 +6,7 @@ const Home = () => import('@/views/home/Home');
 const Category = () => import('@/views/category/Category');
 const Cart = () => import('@/views/cart/Cart');
 const Profile = () => import('@/views/profile/Profile');
+const Detail = () => import('@/views/detail/Detail');
 // 1.安装插件
 Vue.use(VueRouter);
 // 2.创建router
@@ -17,20 +18,29 @@ const router = new VueRouter({
     },
     {
       path: '/home',
-      component: Home
+      component: Home,
     },
     {
       path: '/category',
-      component: Category
+      component: Category,
+      // meta: {
+      //   keepAlive: true // 需要被缓存
+      // }
     },
     {
       path: '/cart',
-      component: Cart
+      component: Cart,
     },
     {
       path: '/profile',
-      component: Profile
-    }
+      component: Profile,
+    },
+    {
+      // 动态路由方式
+      path: '/detail/:iid',
+      // path: '/detail',
+      component: Detail,
+    },
   ],
   mode:'history',
 })

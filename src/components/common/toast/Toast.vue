@@ -1,6 +1,6 @@
 <template>
-  <div class='back-top'>
-    <img src="@/assets/img/common/top.png">
+  <div class='toast'  v-show="isShow">
+    <div>{{message}}</div>
   </div>
 </template>
 
@@ -10,11 +10,23 @@
 
 export default {
   // import引入的组件需要注入到对象中才能使用
+  name:'Toast',
   components: {},
+  props:{
+    // message:{
+    //   type:String,
+    //   default:''
+    // },
+    // isShow:{
+    //   type:Boolean,
+    //   default:false
+    // }
+  },
   data () {
   // 这里存放数据
     return {
-
+      message:'',
+      isShow:false,
     }
   },
   // 监听属性 类似于data概念
@@ -23,7 +35,14 @@ export default {
   watch: {},
   // 方法集合
   methods: {
-
+    show(message='默认文字',duration = 1500){
+      this.message = message;
+      this.isShow = true;
+      setTimeout(() => {
+        this.message = '';
+        this.isShow = false;
+      }, duration);
+    }
   },
   // 生命周期 - 创建完成（可以访问当前this实例）
   created () {
@@ -43,14 +62,15 @@ export default {
 }
 </script>
 <style scoped>
-/* // @import url(); 引入公共css类 */
-.back-top {
+/*@import url(); 引入公共css类 */
+.toast{
   position: fixed;
-  right: 8px;
-  bottom: 52px;
-}
-.back-top img{
-  width: 43px;
-  height: 43px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  padding: 8px 10px;
+  color: #fff;
+  background-color: rgba(0,0,0,.3);
+  z-index: 999;
 }
 </style>

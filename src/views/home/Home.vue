@@ -23,7 +23,7 @@
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
     <!-- native用于监听组件原生事件时 -->
-    <back-top @click.native="backclick" v-show='isshowbacktop'></back-top>
+    <back-top @click.native="backclick" v-show='isShowBackTop'></back-top>
   </div>
 </template>
 
@@ -32,7 +32,7 @@ import NavBar from '@/components/common/navbar/NavBar'
 import TabControl from '@/components/content/tabControl/TabControl.vue'
 import GoodsList from '@/components/content/goods/GoodsList.vue'
 import Scroll from '@/components/common/scroll/Scroll'
-import BackTop from '@/components/content/backTop/BackTop.vue'
+// import BackTop from '@/components/content/backTop/BackTop.vue'
 
 import HomeSwiper from './childComponents/HomeSwiper'
 import RecommendView from './childComponents/RecommendView'
@@ -40,6 +40,7 @@ import FeatureView from './childComponents/FeatureView'
 
 import {getHomeMultidata,getHomeGoods} from '@/network/home'
 import {debounce} from '@/common/utils'
+import {itemImgListenerMixin,backTopMixin} from '@/common/mixin'
 
   export default {
     name: "Home",
@@ -51,8 +52,10 @@ import {debounce} from '@/common/utils'
       FeatureView,
       GoodsList,
       Scroll,
-      BackTop,
+      // BackTop,
     },
+    // 混入
+    mixins: [itemImgListenerMixin,backTopMixin],
     data() {
       return {
         banners:[],
@@ -63,9 +66,11 @@ import {debounce} from '@/common/utils'
           'sell':{page:0,list:[]},
         },
         currentType:'pop',
-        isshowbacktop:false,
+        // isShowBackTop:false,
         tabOffsetTop:0,
         isTabFixed:false,
+        SaveScrollY:0,
+        itemImgListener:null,
       }
     },
     computed:{
@@ -83,93 +88,96 @@ import {debounce} from '@/common/utils'
       this.getHomeGoods('new');
       this.getHomeGoods('sell');
       },
-      mounted() {
-        // 防抖函数debounce从外部导入的
-        // 此方法必须在mounted中执行，不然有可能获取不到this.$refs.scroll
-        const refresh = debounce(this.$refs.scroll.refresh,200);
-        // 图片加载完成后scroll进行刷新，因为刷新后xcrollerHeight的高度才可以重新计算
-        this.$bus.$on('itemimageload',() =>{
-          refresh();
-        })
-      },
-      methods: {
-        // 事件监听方法
-        //1.tabcontrol点击事件(选择流行，新款，爆款数据)
-        tabclick(index){
-          // console.log(index);
-          switch(index){
-            case 0:
-              this.currentType = 'pop';
-            case 1:
-              this.currentType = 'new';
-            case 2:
-              this.currentType = 'sell'
-          }
-          // 为了让两个tabcontrol显示的选项保持一致
-          this.$refs.tabcontrol1.currentindex = index;
-          this.$refs.tabcontrol2.currentindex = index;
-        },
-        //2.回到首页上方点击事件
-        backclick(){
-          // 获取scroll组件，使用该组件内部的的scrollTo方法
-          this.$refs.scroll.scrollTo(0,0,500);
-          // 获取scroll组件中的scroll对象，使用该对象的scrollto方法
-        //   this.$refs.scroll.scroll.scrollto(0,0,500);
-        },
-        // 3.页面滑到一定位置时backtop按钮何时出现
-        currentposition(position){
-          // console.log(position);
-          this.isshowbacktop = Math.abs(position.y) > 1000 ? true : false;
-          // if(Math.abs(position.y) > 1000){
-          //   // 当前屏幕位置大于1000时才显示backtop
-          //   this.isshowbacktop = true;
-          // }else{
-          //   this.isshowbacktop = false;
-          // }
-
-          // 判断当前滑动位置是否到达该组件，到达时显示tabcontrol1,反之不显示
-          this.isTabFixed = Math.abs(position.y) > this.tabOffsetTop ? true : false; 
-        },
-        // 4.上拉加载更多数据
-        loadmore(){
-          // console.log('上拉加载');
-          // 请求当前所处type的下一页数据
-          this.getHomeGoods(this.currentType);
-
-          // // 刷新可滚动区域
-          // this.$refs.scroll.refresh();
-
-        },
-        // 5.获取轮播图加载完成后tabcontrol距离顶端高度
-        swiperimageLoad(){
-          console.log(this.$refs.tabcontrol2.$el.offsetTop);
-          this.tabOffsetTop = this.$refs.tabcontrol2.$el.offsetTop;
-        },
-        //网络请求相关方法
-        // 1.请求轮播图，推荐相关数据
-        getHomeMultidata(){
-          getHomeMultidata().then(res =>{
-            // console.log(res);
-            // 存储请求到的数据
-            this.banners = res.data.banner.list;
-            // console.log(this.banners);
-            this.recommends = res.data.recommend.list;
-            })
-        },
-        // 2.请求商品相关数据
-        getHomeGoods(type){
-          const page = this.goods[type].page+1;
-          getHomeGoods(type,page).then(res =>{
-            // console.log(res);
-            // this.goods[type].page = res.data.page;
-            this.goods[type].page += 1;
-            // 不能直接赋值，不然会覆盖之前的数据，需要向数组中往里加
-            this.goods[type].list.push(...res.data.list);
-            // 完成上拉下载更多后进行finishPullUp后才能再一次上拉加载更多
-            this.$refs.scroll.finishPullUp();
-          })
+    mounted() {
+      // console.log('mounted')
+    },
+    destroyed() {
+      console.log('home destroyed')
+    },
+    methods: {
+      // 事件监听方法
+      //1.tabcontrol点击事件(选择流行，新款，爆款数据)
+      tabclick(index){
+        // console.log(index);
+        switch(index){
+          case 0:
+            this.currentType = 'pop';
+          case 1:
+            this.currentType = 'new';
+          case 2:
+            this.currentType = 'sell'
         }
+        // 为了让两个tabcontrol显示的选项保持一致
+        this.$refs.tabcontrol1.currentindex = index;
+        this.$refs.tabcontrol2.currentindex = index;
       },
+      //2.回到首页上方点击事件
+      backclick(){
+        // 获取scroll组件，使用该组件内部的的scrollTo方法
+        this.$refs.scroll.scrollTo(0,0,500);
+        // 获取scroll组件中的scroll对象，使用该对象的scrollto方法
+      //   this.$refs.scroll.scroll.scrollto(0,0,500);
+      },
+      // 3.页面滑到一定位置时backtop按钮何时出现
+      currentposition(position){
+        // console.log(position);
+        //在Mixin中 BackTop在滚动到什么位置时进行显示 
+        this.BackTopPostion(position);
+        // 判断当前滑动位置是否到达该组件，到达时显示tabcontrol1,反之不显示
+        this.isTabFixed = Math.abs(position.y) > this.tabOffsetTop ? true : false; 
+      },
+      // 4.上拉加载更多数据
+      loadmore(){
+        // console.log('上拉加载');
+        // 请求当前所处type的下一页数据
+        this.getHomeGoods(this.currentType);
+
+        // // 刷新可滚动区域
+        // this.$refs.scroll.refresh();
+
+      },
+      // 5.获取轮播图加载完成后tabcontrol距离顶端高度
+      swiperimageLoad(){
+        // console.log(this.$refs.tabcontrol2.$el.offsetTop);
+        this.tabOffsetTop = this.$refs.tabcontrol2.$el.offsetTop;
+      },
+      //网络请求相关方法
+      // 1.请求轮播图，推荐相关数据
+      getHomeMultidata(){
+        getHomeMultidata().then(res =>{
+          // console.log(res);
+          // 存储请求到的数据
+          this.banners = res.data.banner.list;
+          // console.log(this.banners);
+          this.recommends = res.data.recommend.list;
+          })
+      },
+      // 2.请求商品相关数据
+      getHomeGoods(type){
+        const page = this.goods[type].page+1;
+        getHomeGoods(type,page).then(res =>{
+          // console.log(res);
+          // this.goods[type].page = res.data.page;
+          this.goods[type].page += 1;
+          // 不能直接赋值，不然会覆盖之前的数据，需要向数组中往里加
+          this.goods[type].list.push(...res.data.list);
+          // 完成上拉下载更多后进行finishPullUp后才能再一次上拉加载更多
+          this.$refs.scroll.finishPullUp();
+        })
+      }
+    },
+    activated() {
+      this.$refs.scroll.scrollTo(0,this.SaveScrollY,0);
+      // 重新刷新scroll,计算可滚动高度
+      this.$refs.scroll.refresh();
+    },
+    deactivated() {
+      // 1.获取Y的位置
+      this.SaveScrollY = this.$refs.scroll.getScrollY();
+      // console.log(this.SaveScrollY)
+      // 2.取消图片加载事件监听
+      this.$bus.$off('itemimageload',this.itemImgListener)
+    },
   }
 </script>
 
@@ -214,6 +222,5 @@ import {debounce} from '@/common/utils'
   bottom: 49px;
   left: 0;
   right: 0;
-  
 }
 </style>

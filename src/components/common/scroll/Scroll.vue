@@ -60,8 +60,11 @@ export default {
     },
     refresh(){
        // 首先判断scroll对象是否已挂载
-      //  console.log('----')
+      // console.log('----')
       this.scroll && this.scroll.refresh();
+    },
+    getScrollY(){
+     return this.scroll ? this.scroll.y : 0
     }
   },
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="recommend">
-    <div class="recommend-item" v-for="item in recommends">
+    <div class="recommend-item" v-for="(item,index) in recommends" :key="index">
       <a :href="item.link">
         <img :src="item.image">
         <div>{{item.title}}</div>
@@ -14,6 +14,7 @@
 // 例如：import 《组件名称》 from '《组件路径》';
 
 export default {
+  name:'RecommendView',
   // import引入的组件需要注入到对象中才能使用
   components: {},
   props:{

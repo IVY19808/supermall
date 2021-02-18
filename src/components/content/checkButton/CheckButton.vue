@@ -1,6 +1,6 @@
 <template>
-  <div class='back-top'>
-    <img src="@/assets/img/common/top.png">
+  <div class='check-button' :class="{checked:isChecked}">
+    <img src="@/assets/img/cart/tick.svg">
   </div>
 </template>
 
@@ -10,7 +10,14 @@
 
 export default {
   // import引入的组件需要注入到对象中才能使用
+  name:'CheckButton',
   components: {},
+  props:{
+    isChecked:{
+      type:Boolean,
+      default:false,
+    }
+  },
   data () {
   // 这里存放数据
     return {
@@ -43,14 +50,17 @@ export default {
 }
 </script>
 <style scoped>
-/* // @import url(); 引入公共css类 */
-.back-top {
-  position: fixed;
-  right: 8px;
-  bottom: 52px;
+/* @import url(); 引入公共css类 */
+.check-button{
+  border-radius: 50%;
+  border:2px solid #aaa;
 }
-.back-top img{
-  width: 43px;
-  height: 43px;
+ .check-button img{
+  width: 12px;
+  height: 12px;
+}
+.checked{
+  background-color: #f00;
+  border-color: red;
 }
 </style>

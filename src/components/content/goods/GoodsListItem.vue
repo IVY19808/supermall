@@ -1,14 +1,13 @@
 <template>
-  <div class='goods-list-item'>
-      <a :href="goodsItem.link">
-        <img :src="goodsItem.show.img" @load="imageload" :key='showImage'>
+  <div class='goods-list-item' @click='goodsItemClick'>
+      <!-- <a :href="goodsItem.link"> -->
+        <img :src="showImage" @load="imageload" :key='showImage'>
         <div class="goodsinfo">
           <p>{{goodsItem.title}}</p>
           <span class="price">{{goodsItem.price}}</span>
-
           <span class="collect">{{goodsItem.itemMarks}}</span>
         </div>
-      </a>
+      <!-- </a> -->
   </div>
 </template>
 
@@ -45,9 +44,25 @@ export default {
   methods: {
     // 图片加载完成后执行函数
     imageload(){
-      // console.log('图片加载完成');
-      // 将图片加载完成函数发射到事件总线上
+      // 方法一 此时所有组件都会接收到该事件，但是若没有在当前组件时可以取消该事件的监听
       this.$bus.$emit('itemimageload');
+      // console.log('图片加载完成');
+      // 方法二
+      // if(this.$route.path.indexOf('/home')){
+      //   // 将图片加载完成函数发射到事件总线上
+      //   this.$bus.$emit('itemimageload'); 
+      // }else if(this.$route.path.indexOf('/detail')){
+      //   this.$bus.$emit('detailimageload')
+      // }
+    },
+    goodsItemClick(){
+      // console.log('详情页')；
+      // 点击商品路由跳转到详情页
+      this.$router.push('/detail/'+this.goodsItem.iid);
+      // this.$router.push({
+      //   path:'/detail',
+      //   query:{}
+      // })
     }
   },
   // 生命周期 - 创建完成（可以访问当前this实例）

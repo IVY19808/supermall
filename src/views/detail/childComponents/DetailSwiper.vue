@@ -1,16 +1,30 @@
 <template>
-  <div class='back-top'>
-    <img src="@/assets/img/common/top.png">
-  </div>
+   <swiper class="detail-swiper">
+    <swiper-item v-for="(item,index) in topImages" :key="index">
+      <img :src="item">
+    </swiper-item>
+  </swiper>
 </template>
 
 <script>
 // 这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 // 例如：import 《组件名称》 from '《组件路径》';
-
+import {Swiper, SwiperItem} from '@/components/common/swiper'
 export default {
+  name:'DetailSwiper',
   // import引入的组件需要注入到对象中才能使用
-  components: {},
+  components: {
+    Swiper,
+    SwiperItem,
+  },
+  props:{
+    topImages:{
+      type:Array,
+      default(){
+        return []
+      }
+    }
+  },
   data () {
   // 这里存放数据
     return {
@@ -23,7 +37,7 @@ export default {
   watch: {},
   // 方法集合
   methods: {
-
+  
   },
   // 生命周期 - 创建完成（可以访问当前this实例）
   created () {
@@ -31,7 +45,7 @@ export default {
   },
   // 生命周期 - 挂载完成（可以访问DOM元素）
   mounted () {
-
+    
   },
   beforeCreate () {}, // 生命周期 - 创建之前
   beforeMount () {}, // 生命周期 - 挂载之前
@@ -43,14 +57,13 @@ export default {
 }
 </script>
 <style scoped>
-/* // @import url(); 引入公共css类 */
-.back-top {
-  position: fixed;
-  right: 8px;
-  bottom: 52px;
+/*@import url(); 引入公共css类 */
+.detail-swiper{
+  height: 300px;
+  overflow: hidden;
 }
-.back-top img{
-  width: 43px;
-  height: 43px;
-}
+/* .swiper-item{
+  height: 300px;
+  overflow: hidden;
+} */
 </style>

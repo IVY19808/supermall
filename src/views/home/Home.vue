@@ -70,7 +70,7 @@ import {itemImgListenerMixin,backTopMixin} from '@/common/mixin'
         tabOffsetTop:0,
         isTabFixed:false,
         SaveScrollY:0,
-        itemImgListener:null,
+        // itemImgListener:null,
       }
     },
     computed:{
